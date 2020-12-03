@@ -1,0 +1,5 @@
+[DEFAULT]
+BotToken =
+WebHookUrl =
+Debug = True
+
