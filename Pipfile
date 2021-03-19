@@ -9,7 +9,7 @@ verify_ssl = true
 python-telegram-bot = "==12.3.0"
 aiohttp = {extras = ["speedups"],version = "==3.6.2"}
 uvloop = "==0.14.0"
-pillow = "==7.0.0"
+pillow = "==8.1.1"
 
 [requires]
 python_version = "3.8"
