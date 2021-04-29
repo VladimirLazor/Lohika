@@ -6,6 +6,7 @@ from django.core.files.storage import default_storage
 from django.utils.datetime_safe import datetime
 
 from apps.users.models import User
+from apps.users.models import Image
 
 ALL_TG_FILE_TYPES = ["document", "video_note", "voice", "sticker", "audio", "video", "animation", "photo"]
 
@@ -35,18 +36,25 @@ def get_file_location(file_name: str, uniq_id: str, user_id: int):
 
 def show_file_id(update, context):
     """ Returns file_id of the attached file/media """
-    u = User.get_user(update, context)
 
-    if u.is_admin:
-        update_json = update.to_dict()
-        file_id = _get_file_id(update_json["message"])
-        file = context.bot.getFile(file_id)
-        file_location = get_file_location(Path(file.file_path).name, file.file_unique_id, u.external_user_id)
+    user = User.get_user(update, context)
+    update_json = update.to_dict()
+    message_id = update_json["message"]["message_id"]
 
-        Path.mkdir(Path(file_location).parent, exist_ok=True, parents=True)
-        file.download(file_location)
-
-        message_id = update_json["message"]["message_id"]
-        update.message.reply_text(text=f"`{file_id}`",
+    if not user.is_admin:
+        update.message.reply_text(text='Not Allowed!',
                                   parse_mode=telegram.ParseMode.MARKDOWN,
                                   reply_to_message_id=message_id)
+        return
+
+    file_id = _get_file_id(update_json["message"])
+    file = context.bot.getFile(file_id)
+    file_location = get_file_location(Path(file.file_path).name, file.file_unique_id, user.external_user_id)
+    Path.mkdir(Path(file_location).parent, exist_ok=True, parents=True)
+    file.download(file_location)
+
+    Image.objects.create(user=user, file=file_location)
+
+    update.message.reply_text(text=f"`{file_id}`",
+                              parse_mode=telegram.ParseMode.MARKDOWN,
+                              reply_to_message_id=message_id)

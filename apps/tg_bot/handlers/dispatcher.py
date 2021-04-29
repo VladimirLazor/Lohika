@@ -8,17 +8,11 @@ from telegram.ext import MessageHandler
 from telegram.ext import Updater
 
 from config.celery import app
-from core.static_text import broadcast_command
 from tg_bot.handlers import admin
 from tg_bot.handlers import commands
 from tg_bot.handlers import files
-from tg_bot.handlers.commands import broadcast_command_with_message
-from tg_bot.handlers.handlers import broadcast_decision_handler
 from tg_bot.handlers.handlers import help_cmd
-from tg_bot.handlers.handlers import secret_level
-from tg_bot.handlers.manage_data import CONFIRM_DECLINE_BROADCAST
 from tg_bot.handlers.manage_data import HELP_BUTTON
-from tg_bot.handlers.manage_data import SECRET_LEVEL_BUTTON
 
 
 def setup_dispatcher(dp):

@@ -10,6 +10,7 @@ from apps.core.admin import ActionsModelAdmin
 from apps.tg_bot.handlers.utils import send_message
 from apps.tg_bot.tasks import broadcast_message
 from apps.users.forms import BroadcastForm
+from .models import Image
 from .models import User
 from .models import UserActionLog
 
@@ -62,3 +63,8 @@ class AdminUser(ActionsModelAdmin):
 @register(UserActionLog)
 class AdminUserActionLog(ActionsModelAdmin):
     list_display = ('user', 'action', 'created')
+
+
+@register(Image)
+class Image(ActionsModelAdmin):
+    pass

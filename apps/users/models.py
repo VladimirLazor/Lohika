@@ -180,3 +180,27 @@ class UserActionLog(TimeStampedModel):
             return json.loads(self.action)
         except (TypeError, ValueError):
             return {}
+
+
+class Image(TimeStampedModel):
+    user = models.ForeignKey(
+        to='users.User',
+        on_delete=models.CASCADE,
+        related_name='images',
+        verbose_name=_('Image'),
+        help_text=_('Image.'),
+    )
+    file = models.FilePathField(
+        _('File'),
+        max_length=256,
+        help_text=_('File.'),
+    )
+    is_empty = models.BooleanField(
+        _('Is Empty'),
+        default=True,
+        help_text=_('Is Empty?')
+    )
+
+    class Meta:
+        verbose_name = _('Image')
+        verbose_name_plural = _('Images')
