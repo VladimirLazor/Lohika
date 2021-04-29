@@ -3,7 +3,7 @@ import datetime
 import telegram
 from django.utils.timezone import now
 
-from core import static_text
+from apps.core import static_text
 from apps.users.models import User
 
 

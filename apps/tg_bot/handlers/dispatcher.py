@@ -7,8 +7,8 @@ from telegram.ext import MessageHandler
 from telegram.ext import Updater
 
 from config.celery import app
-from tg_bot.handlers import commands
-from tg_bot.handlers import files
+from apps.tg_bot.handlers import commands
+from apps.tg_bot.handlers import files
 
 
 def setup_dispatcher(dp):

@@ -6,7 +6,7 @@ from django.utils.datetime_safe import datetime
 
 from apps.users.models import Image
 from apps.users.models import User
-from stegano.lsb import hide
+from apps.stegano.lsb import hide
 
 ALL_TG_FILE_TYPES = ["document", "video_note", "voice", "sticker", "audio", "video", "animation", "photo"]
 
