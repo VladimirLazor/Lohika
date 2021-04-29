@@ -1,12 +1,12 @@
-from hashlib import md5
 from pathlib import Path
 
 import telegram
 from django.core.files.storage import default_storage
 from django.utils.datetime_safe import datetime
 
-from apps.users.models import User
 from apps.users.models import Image
+from apps.users.models import User
+from stegano.lsb import hide
 
 ALL_TG_FILE_TYPES = ["document", "video_note", "voice", "sticker", "audio", "video", "animation", "photo"]
 
@@ -24,7 +24,7 @@ def _get_file_id(m):
 
 
 def get_file_location(file_name: str, uniq_id: str, user_id: int):
-    hash_key = md5(str(user_id).encode()).hexdigest()
+    hash_key = User.get_hash(user_id)
 
     dirname_date = datetime.today().strftime("%Y-%m-%d")
     dirname = '/'.join([hash_key, dirname_date])
@@ -34,27 +34,32 @@ def get_file_location(file_name: str, uniq_id: str, user_id: int):
     return file_location
 
 
-def show_file_id(update, context):
-    """ Returns file_id of the attached file/media """
-
+def save_image(update, context):
     user = User.get_user(update, context)
     update_json = update.to_dict()
     message_id = update_json["message"]["message_id"]
 
-    if not user.is_admin:
-        update.message.reply_text(text='Not Allowed!',
-                                  parse_mode=telegram.ParseMode.MARKDOWN,
-                                  reply_to_message_id=message_id)
-        return
+    # if not user.is_admin:
+    #     update.message.reply_text(text='Not Allowed!',
+    #                               parse_mode=telegram.ParseMode.MARKDOWN,
+    #                               reply_to_message_id=message_id)
+    #     return
 
     file_id = _get_file_id(update_json["message"])
+    caption = update_json['message'].get('caption', None)
     file = context.bot.getFile(file_id)
+
     file_location = get_file_location(Path(file.file_path).name, file.file_unique_id, user.external_user_id)
-    Path.mkdir(Path(file_location).parent, exist_ok=True, parents=True)
+    file_location_path = Path(file_location)
+    Path.mkdir(file_location_path.parent, exist_ok=True, parents=True)
     file.download(file_location)
 
-    Image.objects.create(user=user, file=file_location)
+    if caption:
+        encoded = hide(file_location_path, caption)
+        encoded.save(file_location_path)
 
-    update.message.reply_text(text=f"`{file_id}`",
+    Image.objects.create(user=user, file=file_location, is_empty=not bool(caption))
+
+    update.message.reply_text(text=f"File has been uploaded successfully",
                               parse_mode=telegram.ParseMode.MARKDOWN,
                               reply_to_message_id=message_id)
