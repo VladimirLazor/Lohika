@@ -1,3 +1,4 @@
+from hashlib import md5
 from typing import Any
 from typing import Dict
 from typing import Optional
@@ -103,12 +104,25 @@ class User(TimeStampedModel,
     def __str__(self) -> str:
         return f'@{self.username}' if self.username is not None else f'{self.external_user_id}'
 
+    def get_ordered_images_mapper(self, arg=None):
+        filters = {}
+        if arg == 'raw':
+            filters['is_empty'] = True
+        elif arg == 'encoded':
+            filters['is_empty'] = False
+        return {index: image for index, image in
+                enumerate(self.images.filter(**filters).order_by('id').values_list('id', flat=True), start=1)}
+
     def get_full_name(self) -> str:
         full_name = f'{self.first_name} {self.last_name}'
         return full_name.strip()
 
     def get_short_name(self) -> str:
         return self.first_name
+
+    @classmethod
+    def get_hash(cls, user_id):
+        return md5(str(user_id).encode()).hexdigest()
 
     def invited_users(self) -> models.QuerySet['User']:  # --> User queryset
         return type(self).objects.filter(
@@ -190,7 +204,7 @@ class Image(TimeStampedModel):
         verbose_name=_('Image'),
         help_text=_('Image.'),
     )
-    file = models.FilePathField(
+    file = models.ImageField(
         _('File'),
         max_length=256,
         help_text=_('File.'),
