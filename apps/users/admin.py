@@ -66,5 +66,5 @@ class AdminUserActionLog(ActionsModelAdmin):
 
 
 @register(Image)
-class Image(ActionsModelAdmin):
+class AdminImage(ActionsModelAdmin):
     pass
