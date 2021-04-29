@@ -1,6 +1,5 @@
 import telegram
 from django.conf import settings
-from telegram.ext import CallbackQueryHandler
 from telegram.ext import CommandHandler
 from telegram.ext import Dispatcher
 from telegram.ext import Filters
@@ -8,28 +7,36 @@ from telegram.ext import MessageHandler
 from telegram.ext import Updater
 
 from config.celery import app
-from tg_bot.handlers import admin
 from tg_bot.handlers import commands
 from tg_bot.handlers import files
-from tg_bot.handlers.handlers import help_cmd
-from tg_bot.handlers.manage_data import HELP_BUTTON
 
 
 def setup_dispatcher(dp):
     """
-    Adding handlers for events from Telegram
+    Adding handlers for commands
     """
+    dp.add_handler(CommandHandler("help", commands.command_help))
 
     dp.add_handler(CommandHandler("start", commands.command_start))
-    dp.add_handler(CallbackQueryHandler(help_cmd, pattern=f"^{HELP_BUTTON}"))
+    dp.add_handler(CommandHandler("stop", commands.command_stop))
 
-    # admin commands
-    dp.add_handler(CommandHandler("admin", admin.admin))
-    # dp.add_handler(CommandHandler("stats", admin.stats))
+    dp.add_handler(CommandHandler("images", commands.command_images))
+    dp.add_handler(CommandHandler("get_image", commands.command_get_image))
+    dp.add_handler(CommandHandler("delete_image", commands.command_delete_image))
+
+    dp.add_handler(CommandHandler("encode_image", commands.command_encode_image))
+    dp.add_handler(CommandHandler("decode_image", commands.command_decode_image))
 
     dp.add_handler(MessageHandler(
-        Filters.document, files.show_file_id,
+        Filters.document.category("image/"), files.save_image,
     ))
+
+    # dp.add_handler(CallbackQueryHandler(command_help, pattern=f"^{HELP_BUTTON}"))
+    # dp.add_handler(CallbackQueryHandler(command_images, pattern=f"^{IMAGES_BUTTON}"))
+
+    # admin commands
+    # dp.add_handler(CommandHandler("admin", admin.admin))
+    # dp.add_handler(CommandHandler("stats", admin.stats))
 
     # dp.add_handler(CallbackQueryHandler(secret_level, pattern=f"^{SECRET_LEVEL_BUTTON}"))
     #
@@ -56,7 +63,7 @@ def run_pooling():
     updater = Updater(settings.TELEGRAM_TOKEN, use_context=True)
 
     dp = updater.dispatcher
-    dp = setup_dispatcher(dp)
+    setup_dispatcher(dp)
 
     bot_info = telegram.Bot(settings.TELEGRAM_TOKEN).get_me()
     bot_link = f"https://t.me/{bot_info['username']}"
