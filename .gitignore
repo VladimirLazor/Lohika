@@ -5,3 +5,5 @@
 **/*.pyc
 /media
 celerybeat-schedule
+media/
+static/

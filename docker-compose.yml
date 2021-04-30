@@ -11,18 +11,20 @@ services:
     environment:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
-      - POSTGRES_DB=db
+      - POSTGRES_DB=bot
     env_file:
       - ./.env
     ports:
-      - 5433:5432
+      - 5432:5432
   redis:
     image: redis:alpine
     container_name: redis
+    ports:
+      - 6379:6379
   web:
     build: .
     container_name: django
-    command: bash -c "python manage.py migrate && python manage.py runserver 0.0.0.0:8000"
+    command: bash -c "pipenv run python manage.py migrate && pipenv run python manage.py runserver 0.0.0.0:8000"
     volumes:
       - .:/code
     ports:
@@ -43,7 +45,7 @@ services:
   celery:
     build: .
     container_name: celery
-    command: celery -A config worker --loglevel=INFO -E
+    command: pipenv run celery -A config worker --loglevel=INFO -E
     volumes:
       - .:/code
     env_file:
@@ -54,7 +56,7 @@ services:
   celery-beat:
     build: .
     container_name: celery_beat
-    command: celery -A config beat --loglevel=INFO
+    command: pipenv run celery -A config beat --loglevel=INFO
     volumes:
       - .:/code
     env_file:
