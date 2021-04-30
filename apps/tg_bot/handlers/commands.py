@@ -142,7 +142,7 @@ def command_get_image(update, context):
             disable_web_page_preview=True,
         )
         image = Image.objects.get(id=image)
-        update.message.reply_document(image.file)
+        update.message.reply_photo(image.file)
 
 
 @handler_logging()
