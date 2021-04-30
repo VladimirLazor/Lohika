@@ -67,4 +67,6 @@ class AdminUserActionLog(ActionsModelAdmin):
 
 @register(Image)
 class AdminImage(ActionsModelAdmin):
-    pass
+    list_display = ('id', 'user', 'file',)
+    list_filter = ('user',)
+    search_fields = ('user',)
