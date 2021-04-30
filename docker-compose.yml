@@ -37,7 +37,7 @@ services:
   bot:
     build: .
     container_name: tg_bot
-    command: python run_pooling.py
+    command: pipenv run python run_pooling.py
     env_file:
       - ./.env
     depends_on:
