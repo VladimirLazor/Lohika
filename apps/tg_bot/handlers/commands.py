@@ -135,7 +135,7 @@ def command_get_image(update, context):
             )
             return
         image = raw_images[img_id]
-        text = f'Got Image {image}'
+        text = f'Got Image with db id #{image}'
         update.message.reply_text(
             text,
             parse_mode=telegram.ParseMode.MARKDOWN,
